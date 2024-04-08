@@ -6,16 +6,18 @@ module mac #(
 ) (
     input clk_i,
     input rstn_i,
+    input mode,
     input [DATA_WIDTH - 1:0] signal_fifo,
     input [DATA_WIDTH - 1:0] coeff_fifo,
+    output full_adder, full_mul,
+    output empty_adder, empty_mul,
     output [DATA_WIDTH - 1:0] result
 );
 
     wire [DATA_WIDTH - 1:0] signal_pipe, coeff_pipe;
     wire rst_reg_n;
     wire LD_signal, LD_coeff, LD_result;
-    wire full_adder, full_mul;
-    wire [ADDR_LINES - 1:0] wr_out;
+    wire [3:0] wr_out;
     wire redo;
     
     SyncFIFO_BRAM #(
@@ -37,8 +39,7 @@ module mac #(
       );
       
     CoeffFIFO #(
-          .RAM_WIDTH(DATA_WIDTH),
-          .ADDR_LINES(ADDR_LINES)
+          .RAM_WIDTH(DATA_WIDTH)
       ) fifo_coeff (
           .clk_i(clk_i),
           .rstn_i(rstn_i),
@@ -60,10 +61,16 @@ module mac #(
     datapath #(DATA_WIDTH) pipe (
         .clk_n(clk_i),
         .rst_n(rst_reg_n ^ redo),
+        .mode(mode),
         .signal(signal_pipe),
         .coeff(coeff_pipe),
         .LD_signal(LD_signal),
         .LD_coeff(LD_coeff),
+        
+        .LD_direct(LD_direct),
+        .LD_rawResult(LD_rawResult),
+        .LD_final(LD_final),
+        
         .LD_result(LD_result),
         .result(result)
     );
@@ -75,10 +82,11 @@ module mac #(
         
         .wr_ptr_coeff(wr_out),
         
-        .empty(empty_mul),
-        
         .start_signal(start_signal),
         .start_coeff(start_coeff),
+        
+        .mode(mode),
+        .signal_sign(signal_pipe[31]),
         
         .wr_en_signal(wr_en_signal),
         .wr_en_coeff(wr_en_coeff),
@@ -87,6 +95,11 @@ module mac #(
         
         .LD_signal(LD_signal),
         .LD_coeff(LD_coeff),
+        
+        .LD_direct(LD_direct),
+        .LD_rawResult(LD_rawResult),
+        .LD_final(LD_final),
+        
         .LD_result(LD_result),
         
         .redo(redo)

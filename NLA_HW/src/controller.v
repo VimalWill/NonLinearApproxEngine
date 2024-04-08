@@ -5,11 +5,14 @@ module controller #(
 ) (
     input clk,
     input rst_n,
-    input empty,
     
-    input [ADDR_LINES - 1:0] wr_ptr_coeff,
+    input [3:0] wr_ptr_coeff,
     input start_signal,
     input start_coeff,
+    
+    input mode,
+    input signal_sign,
+    
     output reg rst_reg_n,
                    
     output reg wr_en_signal,
@@ -19,13 +22,18 @@ module controller #(
                    
     output reg LD_signal,
     output reg LD_coeff,
+    
+    output reg LD_direct,
+    output reg LD_rawResult,
+    output reg LD_final,
+    
     output reg LD_result,
     
     output reg redo
 );
     
     reg [2:0] state, next_state;
-    reg [ADDR_LINES - 1:0] count;
+    reg [3:0] count;
     
     localparam S0 = 3'b000;
     localparam S1 = 3'b001;
@@ -33,6 +41,8 @@ module controller #(
     localparam S3 = 3'b011;
     localparam S4 = 3'b100;
     localparam S5 = 3'b101;
+    localparam S6 = 3'b110;
+    localparam S7 = 3'b111;
     
     always @(posedge clk or negedge rst_n) begin
         if (~rst_n) begin
@@ -53,6 +63,11 @@ module controller #(
         
         LD_signal = 1'b0;
         LD_coeff = 1'b0;
+        
+        LD_direct = 1'b0;
+        LD_rawResult = 1'b0;
+        LD_final = 1'b0;
+        
         LD_result = 1'b0;
         
         redo = 1'b0;
@@ -81,8 +96,14 @@ module controller #(
             end
             
             S1: begin // Pull from Adder Buffer
-                LD_coeff = 1'b1;
-                next_state = S2;
+                if (~(mode | signal_sign)) begin// NOR
+                    LD_direct = 1'b1;
+                    next_state = S7;
+                end
+                else begin
+                    LD_coeff = 1'b1;
+                    next_state = S2;
+                end
             end
             
             S2: begin // Addition
@@ -97,8 +118,8 @@ module controller #(
             S4: begin // Multiplication and Check
             
                 if(count == 0) begin
-                    LD_result = 1'b1;
-                    next_state = S0;
+                    LD_rawResult = mode ? 1'b0 : 1'b1;
+                    next_state = signal_sign ? S6 : S7;
                 end else  
                     next_state = S5;
             end
@@ -109,7 +130,19 @@ module controller #(
                 next_state = S1;
             end
             
-            default: next_state = S0;
+            S6: begin
+            
+                LD_final = 1'b1;
+                next_state = S7;
+            
+            end
+            
+            S7: begin
+            
+                LD_result = 1'b1;
+                next_state = S0;
+            
+            end
          endcase
      end
 endmodule

@@ -1,6 +1,5 @@
 module CoeffFIFO #(
-    parameter RAM_WIDTH = 32,
-    parameter ADDR_LINES = 12
+    parameter RAM_WIDTH = 32
 ) (
     input clk_i,
     input rstn_i,
@@ -15,22 +14,21 @@ module CoeffFIFO #(
     
     output start_o,
     
-    output [ADDR_LINES - 1:0] wr_out,
+    output [3:0] wr_out,
     
     output [RAM_WIDTH-1:0] data_o
 );
     
     reg [15:0] status = 15'b0;
-    wire [15:0] status_wr_w, status_rd_w;
-    wire [ADDR_LINES - 1:0] wr_ptr, rd_ptr;
+    wire [3:0] wr_ptr, rd_ptr;
 
 
-    PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
+    PriorityEncoder #(4) cntr_write (      // Status reg's zeroes-detector
         .in(~status),
         .out(wr_ptr)
     );
     
-    Coeff_cntr #(ADDR_LINES) cntr_read (            // Read pointer using status reg and counter
+    Coeff_cntr #(4) cntr_read (            // Read pointer using status reg and counter
         .rd_en(rd_en),
         .redo(redo_i),
         .count(status),
@@ -59,7 +57,7 @@ module CoeffFIFO #(
     // PORT B --> Read
     xilinx_true_dual_port_no_change_1_clock_ram #(
         .RAM_WIDTH(RAM_WIDTH),      // Specify RAM data width
-        .ADDR_LINES(ADDR_LINES)     // Specify RAM (number of) address bits
+        .ADDR_LINES(4)     // Specify RAM (number of) address bits
     ) FIFO (
         .addra(wr_ptr),             // Port A address bus, width determined from RAM_DEPTH
         .addrb(rd_ptr),             // Port B address bus, width determined from RAM_DEPTH

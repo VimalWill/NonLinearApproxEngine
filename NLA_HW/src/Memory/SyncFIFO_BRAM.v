@@ -15,7 +15,7 @@ module SyncFIFO_BRAM #(
     output [RAM_WIDTH-1:0] data_o
 );
 
-    reg [15:0] status = 15'b0;
+    reg [(1 << ADDR_LINES) - 1:0] status = 15'b0;
     wire [ADDR_LINES - 1:0] wr_ptr, rd_ptr;
      
     PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
@@ -43,7 +43,7 @@ module SyncFIFO_BRAM #(
         end
     end
     
-    assign full_o = status[15] && 1'b1;
+    assign full_o = status[(1 << ADDR_LINES) - 1] && 1'b1;
     assign empty_o = ~(status || 'b0); // NOR gate
     
     assign start_o = data_i == 32'b01111111100100000000000000000000; // NaN
