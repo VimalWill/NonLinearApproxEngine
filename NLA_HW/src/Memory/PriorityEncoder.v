@@ -7,7 +7,7 @@ module PriorityEncoder #(
     
     integer i;
     always @(*) begin
-        //out = 'bx; // don't care if no 'in' bits set
+        out = 'bx; // don't care if no 'in' bits set
         for (i = (1 << WIDTH)-1 ; i >= 0; i = i-1) begin
             if (in[i])
                out = i;
