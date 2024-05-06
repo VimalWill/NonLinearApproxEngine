@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np 
 import keras 
 
-from Activations import TaylorSELU
+from Activations import TaylorSELU, TaylorSigmoid, TaylorSwish
 
 class GPNAE:
     def __init__(self, model : keras.Model, Data):
@@ -17,7 +17,9 @@ class GPNAE:
     def __approximate(model : keras.Model, Data):
 
         activationTable = {
-            "selu" : TaylorSELU
+            "selu"    : TaylorSELU, 
+            "sigmoid" : TaylorSigmoid, 
+            "swish"   : TaylorSwish
         }
 
         clonedModel = keras.models.clone_model(model)

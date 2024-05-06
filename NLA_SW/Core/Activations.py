@@ -24,3 +24,30 @@ class TaylorSELU(tf.keras.layers.Layer):
 
     def call(self, inputs):
         return self.custom_selu(inputs)
+
+class TaylorSigmoid(tf.keras.layers.Layer):
+    def __init__(self, num_terms):
+        super(TaylorSigmoid, self).__init__()
+        self.num_terms = num_terms
+    
+    def custom_sigmoid(self,x):
+        approx = 0
+        for terms in range(self.num_terms + 1):
+            approx += (x**terms) / factorial(terms)
+        
+        return approx / (approx + 1)
+    
+    def call(self, inputs):
+        return self.custom_sigmoid(inputs)
+
+class TaylorSwish(tf.keras.layers.Layer):
+    def __init__(self, num_terms):
+        super(TaylorSwish, self).__init__()
+        self.num_terms = num_terms
+    
+    def custom_swish(self, x):
+        return x * TaylorSigmoid(self.num_terms)(x)
+    
+    def call(self, inputs):
+        return self.custom_swish(inputs)
+
