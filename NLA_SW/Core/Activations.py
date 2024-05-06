@@ -82,5 +82,26 @@ class TaylorGeLu(tf.keras.layers.Layer):
     def call(self, inputs):
         return self.custom_gelu(inputs)
 
+def FunctionalityTest():
+    import matplotlib.pyplot as plt
+    import numpy as np 
+
+    def sigmoid(z):
+        return 1/(1 + np.exp(-z))
+
+    x_values = np.linspace(-5, 5, 30)
+    y_values = tf.nn.gelu(x_values)
+    y_approx = TaylorGeLu(25)(x_values)
+    plt.figure(figsize=(8, 6))
+    plt.plot(x_values, y_values, label='Swish functon', color='blue')
+    plt.plot(x_values, y_approx, label='approx Swish Function', color='red')
+    plt.title('Sigmoid Function')
+    plt.xlabel('x')
+    plt.ylabel('Sigmoid(x)')
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+
+FunctionalityTest()
 
 
