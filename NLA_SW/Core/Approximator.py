@@ -3,6 +3,7 @@ import numpy as np
 import time
 import keras 
 
+import json
 from Activations import *
 
 class GPNAE:
@@ -19,12 +20,14 @@ class GPNAE:
         approximationPerLayer: Approximation required per activation 
         (supports non-linear functions)
     """
-    def __init__(self, model : keras.Model, Data):
+    def __init__(self, model : keras.Model, Data, config):
 
         self.model = model 
         self.data  = Data
+
+        self.config = json.loads(config)
     
-    def __approximate(model : keras.Model, Data):
+    def __approximate(self):
 
         activationTable = {
             "selu"    : TaylorSELU, 
@@ -35,24 +38,25 @@ class GPNAE:
 
         approximationPerLayer = []
 
-        baseline_accuracy = model.evaluate(Data)
-        clonedModel = keras.models.clone_model(model)
-        for LayerID, Layer in enumerate(clonedModel.layers):
+        _,baseline_accuracy = self.model.evaluate(self.data)
+        for LayerID, Layer in enumerate(self.model.layers):
             if (hasattr(Layer, "activation") and Layer.activation.__name__ in activationTable):
-
-                #estimate the amount of approx. per layer 
-                for ApproxAmount in range(40,3,-1):
-                    clonedModel.layers[LayerID].activation = activationTable[Layer.activation.__name__](ApproxAmount)
-                    _, accuracy = clonedModel.evaluate(Data)
-                    deviation = (accuracy - baseline_accuracy) * 100
-                    if (deviation >=2) or (deviation <= -2):
-                        break
-                approximationPerLayer.append({"Layer_ID" : LayerID, 
-                                              "LayerName" : Layer.activation.__name__,
-                                              "AmountOfApproximation" : ApproxAmount})
                 
-                time.sleep(0.1) #breath time for CPU
+                for ApproxAmount in range(self.config["max_term"], 3, -1):
+                    clonedModel = keras.models.clone_model(self.model) #clone entire model for every iter
+                    clonedModel.compile(optimizer=self.config["optimizer"], loss=self.config["loss"])
+
+                    clonedModel.layers[LayerID].activation = keras.activations(activationTable[Layer.activation.__name__](ApproxAmount))
+                    _, accuracy = clonedModel.evaluate(self.data)
+                    deviation = (accuracy - baseline_accuracy) * 100
+                    if deviation >= 2 or deviation <= -2:
+                        break 
+                approximationPerLayer.append({"Layer_ID" : LayerID,
+                                              "Layer_Name" : Layer.activation.__name__,
+                                              "Approximation_Amount" : ApproxAmount})
+                print(f"{LayerID} :  {Layer.activation.__name__} is approximated....")
         return approximationPerLayer
+
                     
     def compute(self):
         ApproximationPerLayer = self.__approximate(self.model, self.data)

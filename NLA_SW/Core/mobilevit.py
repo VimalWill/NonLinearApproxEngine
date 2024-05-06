@@ -2,7 +2,7 @@ import keras
 import numpy as np 
 
 try:
-    from NLA_SW.Core.Approximator import GPNAE
+    from Approximator import GPNAE
 except:
     ImportError
 
@@ -12,7 +12,7 @@ def main():
     #TODO: fetch data and process
 
     
-    EstimatedApproximation = GPNAE(mobilevit)
+    EstimatedApproximation = GPNAE(mobilevit).compute()
     print(EstimatedApproximation)
 
 if __name__ == "__main__":

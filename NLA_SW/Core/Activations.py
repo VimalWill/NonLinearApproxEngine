@@ -84,24 +84,45 @@ class TaylorGeLu(tf.keras.layers.Layer):
 
 def FunctionalityTest():
     import matplotlib.pyplot as plt
+    import seaborn as sns
     import numpy as np 
-
-    def sigmoid(z):
-        return 1/(1 + np.exp(-z))
-
-    x_values = np.linspace(-5, 5, 30)
-    y_values = tf.nn.gelu(x_values)
-    y_approx = TaylorGeLu(25)(x_values)
-    plt.figure(figsize=(8, 6))
-    plt.plot(x_values, y_values, label='Swish functon', color='blue')
-    plt.plot(x_values, y_approx, label='approx Swish Function', color='red')
-    plt.title('Sigmoid Function')
-    plt.xlabel('x')
-    plt.ylabel('Sigmoid(x)')
-    plt.grid(True)
+    
+    # Set seaborn style
+    sns.set_style("whitegrid")
+    
+    # Generate x values
+    x_values = np.linspace(-5, 5, 300)
+    
+    # Generate y values for the Swish function
+    y_values = tf.nn.selu(x_values)
+    
+    # Generate approximations for different values of n with offsets
+    y_approx_25 = TaylorSELU(14)(x_values) - 0.4  # Offset for better visualization
+    y_approx_20 = TaylorSELU(10)(x_values) - 0.2  # Offset for better visualization
+    y_approx_10 = TaylorSELU(9)(x_values) + 0.2  # Offset for better visualization
+    # y_approx_7 = TaylorTanh(7)(x_values) + 0.4  # Offset for better visualization
+    
+    # Create plot
+    plt.figure(figsize=(6.9, 5.2))  # IEEE single column width is 3.5 inches
+    
+    # Plot Swish function
+    plt.plot(x_values, y_values, label='Actual SeLu', color='purple', linewidth=1.5)
+    
+    # Plot approximations
+    plt.plot(x_values, y_approx_25, label='Approximation (n=14)', color='blue', linestyle='--')
+    plt.plot(x_values, y_approx_20, label='Approximation (n=10)', color='green', linestyle='-.')
+    plt.plot(x_values, y_approx_10, label='Approximation (n=9)', color='red', linestyle=':')
+    # plt.plot(x_values, y_approx_7, label='Approximation (n=7)', color='purple', linestyle='-')
+    
+    # Adjust labels and legend
+    plt.xlabel('Input Tensor (x)')
+    plt.ylabel('y = SeLu (x)')
+    plt.title('SeLu Vs Approximated SeLu')
     plt.legend()
+    
+    # Save the plot as a PDF
+    plt.savefig("SeLu_Approximation.pdf", format='pdf', bbox_inches='tight')
+    
     plt.show()
 
-FunctionalityTest()
-
-
+# FunctionalityTest() don't un-comment while execution
