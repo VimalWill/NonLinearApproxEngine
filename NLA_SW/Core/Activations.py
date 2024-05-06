@@ -1,5 +1,7 @@
 import tensorflow as tf 
-from math import factorial
+import numpy as np
+import math
+from math import factorial, sqrt
 import keras
 
 class TaylorSELU(tf.keras.layers.Layer):
@@ -30,6 +32,7 @@ class TaylorSigmoid(tf.keras.layers.Layer):
         super(TaylorSigmoid, self).__init__()
         self.num_terms = num_terms
     
+    @tf.function
     def custom_sigmoid(self,x):
         approx = 0
         for terms in range(self.num_terms + 1):
@@ -45,9 +48,39 @@ class TaylorSwish(tf.keras.layers.Layer):
         super(TaylorSwish, self).__init__()
         self.num_terms = num_terms
     
+    @tf.function
     def custom_swish(self, x):
         return x * TaylorSigmoid(self.num_terms)(x)
     
     def call(self, inputs):
         return self.custom_swish(inputs)
+
+class TaylorTanh(tf.keras.layers.Layer):
+    def __init__(self, num_terms):
+        super(TaylorTanh, self).__init__()
+        self.num_terms = num_terms
+    
+    @tf.function
+    def custom_tanh(self,x):
+        approx = 0 
+        for term in range(self.num_terms + 1):
+            approx += ((2*x)**term / factorial(term))
+        
+        return (approx - 1) / (approx + 1)
+    
+    def call(self, inputs):
+        return self.custom_tanh(inputs)
+
+class TaylorGeLu(tf.keras.layers.Layer):
+    def __init__(self, num_terms):
+        super(TaylorGeLu, self).__init__()
+        self.num_terms = num_terms
+    
+    def custom_gelu(self,x):
+        return x * TaylorSigmoid(self.num_terms)(1.702 * x)
+    
+    def call(self, inputs):
+        return self.custom_gelu(inputs)
+
+
 
