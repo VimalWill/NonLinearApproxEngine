@@ -3,7 +3,6 @@ import numpy as np
 import time
 import keras 
 
-import json
 from Activations import *
 
 class GPNAE:
@@ -25,7 +24,7 @@ class GPNAE:
         self.model = model 
         self.data  = Data
 
-        self.config = json.loads(config)
+        self.config = config
     
     def __approximate(self):
 
@@ -48,8 +47,8 @@ class GPNAE:
 
                     clonedModel.layers[LayerID].activation = keras.activations(activationTable[Layer.activation.__name__](ApproxAmount))
                     _, accuracy = clonedModel.evaluate(self.data)
-                    deviation = (accuracy - baseline_accuracy) * 100
-                    if deviation >= 2 or deviation <= -2:
+                    deviation = accuracy - baseline_accuracy
+                    if deviation >= 0.02 and deviation <= -0.02:
                         break 
                 approximationPerLayer.append({"Layer_ID" : LayerID,
                                               "Layer_Name" : Layer.activation.__name__,
@@ -59,7 +58,7 @@ class GPNAE:
 
                     
     def compute(self):
-        ApproximationPerLayer = self.__approximate(self.model, self.data)
+        ApproximationPerLayer = self.__approximate()
         return ApproximationPerLayer
 
 
