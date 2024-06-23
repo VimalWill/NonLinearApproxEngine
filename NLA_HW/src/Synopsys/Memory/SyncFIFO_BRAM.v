@@ -1,3 +1,5 @@
+`timescale 1ns / 100ps
+
 module SyncFIFO_BRAM #(
     parameter RAM_WIDTH = 32,
     parameter ADDR_LINES = 12
@@ -15,19 +17,25 @@ module SyncFIFO_BRAM #(
     output [RAM_WIDTH-1:0] data_o
 );
 
-    reg [(1 << ADDR_LINES) - 1:0] status = 15'b0;
+    reg [(1 << ADDR_LINES) - 1:0] status;
     wire [ADDR_LINES - 1:0] wr_ptr, rd_ptr;
      
-    PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
-        .in(~status),
-        .out(wr_ptr)
-    );
-    
-    PriorityEncoder #(ADDR_LINES) cntr_read (       // Status reg's ones-detector
-        .in(status),
-        .out(rd_ptr)
-    );
-     
+//     PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
+//         .in(~status),
+//         .out(wr_ptr)
+//     );
+//
+//     PriorityEncoder #(ADDR_LINES) cntr_read (       // Status reg's ones-detector
+//         .in(status),
+//         .out(rd_ptr)
+//     );
+
+    DW01_prienc #((1 << ADDR_LINES), ADDR_LINES)      // Status reg's zeroes-detector by DesignWare
+    U1 ( .A(~status), .INDEX(wr_ptr) );
+
+    DW01_prienc #((1 << ADDR_LINES), ADDR_LINES)      // Status reg's zeroes-detector by DesignWare
+    U2 ( .A(status), .INDEX(rd_ptr) );
+
     always @ (posedge clk_i or negedge rstn_i) begin
         if (~rstn_i)
             status <= 16'b0;
@@ -44,7 +52,7 @@ module SyncFIFO_BRAM #(
     end
     
     assign full_o = status[(1 << ADDR_LINES) - 1] && 1'b1;
-    assign empty_o = ~(status || 'b0); // NOR gate
+    assign empty_o = ~(status[0] || 'b0); // NOR gate
     
     assign start_o = data_i == 32'b01111111100100000000000000000000; // NaN
      

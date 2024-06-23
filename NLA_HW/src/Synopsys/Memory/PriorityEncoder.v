@@ -1,3 +1,5 @@
+`timescale 1ns / 100ps
+
 module PriorityEncoder #(
     parameter WIDTH = 4
  ) (

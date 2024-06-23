@@ -1,5 +1,8 @@
+`timescale 1ns / 100ps
+
 module CoeffFIFO #(
-    parameter RAM_WIDTH = 32
+    parameter RAM_WIDTH = 32,
+    parameter ADDR_LINES = 12
 ) (
     input clk_i,
     input rstn_i,
@@ -14,21 +17,25 @@ module CoeffFIFO #(
     
     output start_o,
     
-    output [3:0] wr_out,
+    output [ADDR_LINES - 1:0] wr_out,
     
     output [RAM_WIDTH-1:0] data_o
 );
     
-    reg [15:0] status = 15'b0;
-    wire [3:0] wr_ptr, rd_ptr;
+    reg [(1 << ADDR_LINES) - 1:0] status;
+    wire [ADDR_LINES - 1:0] wr_ptr, rd_ptr;
 
 
-    PriorityEncoder #(4) cntr_write (      // Status reg's zeroes-detector
-        .in(~status),
-        .out(wr_ptr)
-    );
+    // PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
+    //     .in(~status),
+    //     .out(wr_ptr)
+    // );
+
+    DW01_prienc #((1 << ADDR_LINES), ADDR_LINES)      // Status reg's zeroes-detector by DesignWare
+    U1 ( .A(~status), .INDEX(wr_ptr) );
     
-    Coeff_cntr #(4) cntr_read (            // Read pointer using status reg and counter
+    Coeff_cntr #(ADDR_LINES) cntr_read (            // Read pointer using status reg and counter
+        .clkn_i(clk_i),
         .rd_en(rd_en),
         .redo(redo_i),
         .count(status),
@@ -47,7 +54,7 @@ module CoeffFIFO #(
     end
     
     // FIFO status Flags
-    assign full_o = status[15] && 1'b1;
+    assign full_o = status[(1 << ADDR_LINES) - 1] && 1'b1;
     assign empty_o = ~(status[0] || 1'b0); //NOR gate
     
     // FSM Control Flags
@@ -57,7 +64,7 @@ module CoeffFIFO #(
     // PORT B --> Read
     xilinx_true_dual_port_no_change_1_clock_ram #(
         .RAM_WIDTH(RAM_WIDTH),      // Specify RAM data width
-        .ADDR_LINES(4)     // Specify RAM (number of) address bits
+        .ADDR_LINES(ADDR_LINES)     // Specify RAM (number of) address bits
     ) FIFO (
         .addra(wr_ptr),             // Port A address bus, width determined from RAM_DEPTH
         .addrb(rd_ptr),             // Port B address bus, width determined from RAM_DEPTH

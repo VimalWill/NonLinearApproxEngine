@@ -1,3 +1,5 @@
+`timescale 1ns / 100ps
+
 //  Xilinx True Dual Port RAM, No Change, Single Clock
 //  This code implements a parameterizable true dual port memory (both ports can read and write).
 //  This is a no change RAM which retains the last read value on the output during writes
@@ -27,8 +29,8 @@ module xilinx_true_dual_port_no_change_1_clock_ram #(
 );
 
   reg [RAM_WIDTH-1:0] BRAM [RAM_DEPTH-1:0];
-  reg [RAM_WIDTH-1:0] ram_data_a = {RAM_WIDTH{1'b0}};
-  reg [RAM_WIDTH-1:0] ram_data_b = {RAM_WIDTH{1'b0}};
+  reg [RAM_WIDTH-1:0] ram_data_a;
+  reg [RAM_WIDTH-1:0] ram_data_b;
 
   always @(posedge clk_i) begin
     if (ena) begin
@@ -38,21 +40,21 @@ module xilinx_true_dual_port_no_change_1_clock_ram #(
         ram_data_a <= BRAM[addra];
     end
   end
-
+  
   always @(posedge clk_i) begin
-    if (enb) begin
-      if (web)
-        BRAM[addrb] <= dinb;
-      else
-        ram_data_b <= BRAM[addrb];
-    end
+      if (enb) begin
+        if (web)
+          BRAM[addrb] <= dinb;
+        else
+          ram_data_b <= BRAM[addrb];
+      end
   end
 
   generate
     // The following is a 2 clock cycle read latency with improve clock-to-out timing
 
-    reg [RAM_WIDTH-1:0] douta_reg = {RAM_WIDTH{1'b0}};
-    reg [RAM_WIDTH-1:0] doutb_reg = {RAM_WIDTH{1'b0}};
+    reg [RAM_WIDTH-1:0] douta_reg;
+    reg [RAM_WIDTH-1:0] doutb_reg;
 
     always @(posedge clk_i) begin
         if (~rstna)

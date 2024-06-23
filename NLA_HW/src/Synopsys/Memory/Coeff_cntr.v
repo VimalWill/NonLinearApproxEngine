@@ -1,16 +1,19 @@
+`timescale 1ns / 100ps
+
 module Coeff_cntr #(
   parameter ADDR_LINES = 4
 ) (
+    input clkn_i,
     input rd_en,
     input redo,
-    input [15:0] count,
+    input [(1 << ADDR_LINES) - 1:0] count,
     output [ADDR_LINES - 1:0] rd_ptr
 );
-    reg [15:0] i = 0;
+    integer i;
     
-    always @(*) begin
+    always @(posedge clkn_i) begin
         if (redo)
-            i = 16'b0;
+            i = 'b0;
         else if (count[i] && rd_en)
             i = i + 'b1;
 
