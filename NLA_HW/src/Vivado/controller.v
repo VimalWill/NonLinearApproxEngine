@@ -23,7 +23,7 @@ module controller #(
 );
     
     reg [2:0] state, next_state;
-    reg [3:0] count;
+    reg [ADDR_LINES - 1:0] count;
     reg [3:0] count2;
     
     localparam S0 = 3'b000;
