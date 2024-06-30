@@ -26,13 +26,10 @@ module CoeffFIFO #(
     wire [ADDR_LINES - 1:0] wr_ptr, rd_ptr;
 
 
-    // PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
-    //     .in(~status),
-    //     .out(wr_ptr)
-    // );
-
-    DW01_prienc #((1 << ADDR_LINES), ADDR_LINES)      // Status reg's zeroes-detector by DesignWare
-    U1 ( .A(~status), .INDEX(wr_ptr) );
+    PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
+        .in(~status),
+        .out(wr_ptr)
+    );
     
     Coeff_cntr #(ADDR_LINES) cntr_read (            // Read pointer using status reg and counter
         .clkn_i(clk_i),
