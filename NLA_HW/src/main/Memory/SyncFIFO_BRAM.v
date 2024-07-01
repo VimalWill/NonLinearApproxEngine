@@ -20,25 +20,19 @@ module SyncFIFO_BRAM #(
     reg [(1 << ADDR_LINES) - 1:0] status;
     wire [ADDR_LINES - 1:0] wr_ptr, rd_ptr;
      
-//     PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
-//         .in(~status),
-//         .out(wr_ptr)
-//     );
-//
-//     PriorityEncoder #(ADDR_LINES) cntr_read (       // Status reg's ones-detector
-//         .in(status),
-//         .out(rd_ptr)
-//     );
+     PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
+         .in(~status),
+         .out(wr_ptr)
+     );
 
-    DW01_prienc #((1 << ADDR_LINES), ADDR_LINES)      // Status reg's zeroes-detector by DesignWare
-    U1 ( .A(~status), .INDEX(wr_ptr) );
-
-    DW01_prienc #((1 << ADDR_LINES), ADDR_LINES)      // Status reg's zeroes-detector by DesignWare
-    U2 ( .A(status), .INDEX(rd_ptr) );
+     PriorityEncoder #(ADDR_LINES) cntr_read (       // Status reg's ones-detector
+         .in(status),
+         .out(rd_ptr)
+     );
 
     always @ (posedge clk_i or negedge rstn_i) begin
         if (~rstn_i)
-            status <= 16'b0;
+            status <= 'b0;
         else begin
             if (wr_en) begin
                 if(~status[wr_ptr])
@@ -69,9 +63,9 @@ module SyncFIFO_BRAM #(
 
         .clk_i(clk_i),    // Clock
 
-        .wea(wr_en && ~start_o),      // Port A write enable
+        .wea(wr_en & ~start_o),      // Port A write enable
         .web(1'b0),       // Port B write enable
-        .ena(1'b1),       // Port A RAM Enable, for additional power savings, disable port when not in use
+        .ena(~full_o),       // Port A RAM Enable, for additional power savings, disable port when not in use
         .enb(1'b1),       // Port B RAM Enable, for additional power savings, disable port when not in use
         
         .rstna(rstn_i),   // Port A output reset (does not affect memory contents)

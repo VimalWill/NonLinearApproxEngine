@@ -128,15 +128,15 @@ module Adder_32 (
         end
     end    
     
-    BadLeadingZero stage_31 (      // Leading Zero Counter
-        .in(TempMan),
-        .out(zerocount)
-    );
+//     BadLeadingZero stage_31 (      // Leading Zero Counter
+//         .in(TempMan),
+//         .out(zerocount)
+//     );
 
-    // LZC16 stage_31 (              // Leading Zero Counter
-    //     .A(TempMan[23:8]),
-    //     .V(zerocount)
-    // );
+    cntlz24 stage_31 (      // Leading Zero Counter
+        .i(TempMan),
+        .o(zerocount)
+    );
     
     always @(negedge clk_n or negedge rst_n) begin
         if (~rst_n) begin

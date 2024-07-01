@@ -26,11 +26,14 @@ module CoeffFIFO #(
     wire [ADDR_LINES - 1:0] wr_ptr, rd_ptr;
 
 
-    PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
-        .in(~status),
-        .out(wr_ptr)
-    );
-    
+     // PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
+     //     .in(~status),
+     //     .out(wr_ptr)
+     // );
+
+     DW01_prienc #((1 << ADDR_LINES), ADDR_LINES)      // Status reg's zeroes-detector by DesignWare
+    U1 ( .A(~status), .INDEX(wr_ptr) );
+
     Coeff_cntr #(ADDR_LINES) cntr_read (            // Read pointer using status reg and counter
         .clkn_i(clk_i),
         .rd_en(rd_en),
@@ -72,7 +75,7 @@ module CoeffFIFO #(
 
         .wea(wr_en && ~start_o),    // Port A write enable
         .web(1'b0),                 // Port B write enable
-        .ena(1'b1),                 // Port A RAM Enable, for additional power savings, disable port when not in use
+        .ena(~full_o),                 // Port A RAM Enable, for additional power savings, disable port when not in use
         .enb(1'b1),                 // Port B RAM Enable, for additional power savings, disable port when not in use
         
         .rstna(rstn_i),             // Port A output reset (does not affect memory contents)
