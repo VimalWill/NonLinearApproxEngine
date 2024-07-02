@@ -4,17 +4,19 @@ module mac #(
     parameter DATA_WIDTH = 32,
     parameter ADDR_LINES = 4
 ) (
-    input clk_i,
-    input rstn_i,
-    input [DATA_WIDTH - 1:0] signal_fifo,
-    input [DATA_WIDTH - 1:0] coeff_fifo,
-    output full_adder, full_mul,
-    output empty_adder, empty_mul,
-    output [DATA_WIDTH - 1:0] result
+    input wire clk_i,
+    input wire rstn_i,
+    input wire [DATA_WIDTH - 1:0] signal_fifo,
+    input wire [DATA_WIDTH - 1:0] coeff_fifo,
+    output wire full_adder, full_mul,
+    output wire empty_adder, empty_mul,
+    output wire [DATA_WIDTH - 1:0] result
 );
 
     wire [DATA_WIDTH - 1:0] signal_pipe, coeff_pipe;
     wire [ADDR_LINES - 1:0] wr_out;
+
+    wire start_signal, start_coeff, wr_en_signal, wr_en_coeff, rd_en_signal, rd_en_coeff, redo_coeff, redo_data, LD_result;
 
     SyncFIFO_BRAM #(
           .RAM_WIDTH(DATA_WIDTH),

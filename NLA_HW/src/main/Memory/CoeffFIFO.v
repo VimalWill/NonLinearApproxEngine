@@ -4,22 +4,22 @@ module CoeffFIFO #(
     parameter RAM_WIDTH = 32,
     parameter ADDR_LINES = 12
 ) (
-    input clk_i,
-    input rstn_i,
-    input wr_en,   // Write Enable
-    input rd_en,   // Right Enable
-    input [RAM_WIDTH-1:0] data_i,
+    input wire clk_i,
+    input wire rstn_i,
+    input wire wr_en,   // Write Enable
+    input wire rd_en,   // Right Enable
+    input wire [RAM_WIDTH-1:0] data_i,
     
-    input redo_i,
+    input wire redo_i,
     
-    output full_o,
-    output empty_o,
+    output wire full_o,
+    output wire empty_o,
     
-    output start_o,
+    output wire start_o,
     
-    output [ADDR_LINES - 1:0] wr_out,
+    output wire [ADDR_LINES - 1:0] wr_out,
     
-    output [RAM_WIDTH-1:0] data_o
+    output wire [RAM_WIDTH-1:0] data_o
 );
     
     reg [(1 << ADDR_LINES) - 1:0] status;
@@ -43,7 +43,7 @@ module CoeffFIFO #(
     
     always @ (posedge clk_i or negedge rstn_i) begin
 
-        if (~rstn_i) status <= 16'b0;
+        if (~rstn_i) status <= {(1 << ADDR_LINES){1'b0}};
         else if (wr_en) begin
             if(~status[wr_ptr])
                 status[wr_ptr] <= ~status[wr_ptr];
@@ -59,7 +59,7 @@ module CoeffFIFO #(
      
     // PORT A --> Write
     // PORT B --> Read
-    xilinx_true_dual_port_no_change_1_clock_ram #(
+    dual_port_ram #(
         .RAM_WIDTH(RAM_WIDTH),      // Specify RAM data width
         .ADDR_LINES(ADDR_LINES)     // Specify RAM (number of) address bits
     ) FIFO (

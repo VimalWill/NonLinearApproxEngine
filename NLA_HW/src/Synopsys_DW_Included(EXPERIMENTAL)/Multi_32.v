@@ -1,11 +1,11 @@
 `timescale 1ns / 100ps
 
 module multiply_32 (
-    input clk_n,
-    input rst_n,
-    input [31:0] A,
-    input [31:0] B,
-    output [31:0] Result
+    input wire clk_n,
+    input wire rst_n,
+    input wire [31:0] A,
+    input wire [31:0] B,
+    output wire  [31:0] Result
 );
 
     reg [23:0] A_Mantissa, B_Mantissa;

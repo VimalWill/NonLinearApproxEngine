@@ -1,11 +1,11 @@
 `timescale 1ns / 100ps
 
 module Adder_32 (
-     input clk_n,
-     input rst_n,
-     input [31:0] A,
-     input [31:0] B,
-     output [31:0] Result
+     input wire clk_n,
+     input wire rst_n,
+     input wire [31:0] A,
+     input wire [31:0] B,
+     output wire [31:0] Result
  );
     
     wire [4:0] zerocount;
@@ -127,19 +127,9 @@ module Adder_32 (
             BigExp_delayed_delayed_delayed <= BigExp_delayed_delayed;
         end
     end    
-    
-    // BadLeadingZero stage_31 (      // Leading Zero Counter
-    //     .in(TempMan),
-    //     .out(zerocount)
-    // );
-
-    // LZC16 stage_31 (              // Leading Zero Counter
-    //     .A(TempMan[23:8]),
-    //     .V(zerocount)
-    // );
 
     DW_lzd #(24)                    // Leading Zero Counter
-	  U1 ( .a(TempMan), .enc(zerocount) );
+    U1 ( .a(TempMan), .enc(zerocount) );
     
     always @(negedge clk_n or negedge rst_n) begin
         if (~rst_n) begin

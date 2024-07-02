@@ -3,15 +3,13 @@
 module controller #(
     parameter ADDR_LINES = 4
 ) (
-    input clk,
-    input rst_n,
+    input wire clk,
+    input wire rst_n,
     
-    input [ADDR_LINES - 1:0] wr_ptr_coeff,
-    input start_signal,
-    input start_coeff,
-    
-    output reg rst_reg_n,
-                   
+    input wire [ADDR_LINES - 1:0] wr_ptr_coeff,
+    input wire start_signal,
+    input wire start_coeff,
+
     output reg wr_en_signal,
     output reg wr_en_coeff,
     output reg rd_en_signal,
@@ -34,7 +32,7 @@ module controller #(
     
     always @(posedge clk or negedge rst_n) begin
         if (~rst_n) begin
-            rst_reg_n <= 1'b0;
+
             count <= 'b0;
             count2 <= 'b0;
             
@@ -45,7 +43,6 @@ module controller #(
             else if (state == S2) count2 <= 'b0;
             else if (state == S4) count2 <= count2 + 1;
 
-            rst_reg_n <= 1'b1;
             state <= next_state;
         end
     end

@@ -1,11 +1,11 @@
 `timescale 1ns / 100ps
 
 module Adder_32 (
-     input clk_n,
-     input rst_n,
-     input [31:0] A,
-     input [31:0] B,
-     output [31:0] Result
+     input wire clk_n,
+     input wire rst_n,
+     input wire [31:0] A,
+     input wire [31:0] B,
+     output wire [31:0] Result
  );
     
     wire [4:0] zerocount;
@@ -24,7 +24,7 @@ module Adder_32 (
     reg sign, sign_delayed, sign_delayed_delayed, sign_delayed_delayed_delayed;
     
     reg [7:0] A_Exp, B_Exp;
-    reg [23:0] A_Man, B_Man;
+    reg [22:0] A_Man, B_Man;
 
     always @(negedge clk_n or negedge rst_n) begin
         if (~rst_n) begin
@@ -32,8 +32,8 @@ module Adder_32 (
             B_sign <= 1'b0;
             A_Exp <= 8'b0;
             B_Exp <= 8'b0;
-            A_Man <= 24'b0;
-            B_Man <= 24'b0;
+            A_Man <= 23'b0;
+            B_Man <= 23'b0;
         end else begin
             A_sign <= A[31];
             B_sign <= B[31];
@@ -45,7 +45,7 @@ module Adder_32 (
     end
     
     assign comp = (A_Exp > B_Exp) ? 1'b1 : 1'b0;
-    assign magcheck = (A_Exp ^ B_Exp) ? 1'b0 : ((A_Man > B_Man) ? 1'b1 : 1'b0);
+    assign magcheck = (A_Exp == B_Exp) ? 1'b0 : ((A_Man > B_Man) ? 1'b1 : 1'b0);
     assign zero = (~|{A_Exp, A_Man} && ~|{B_Exp, B_Man});
     
     always @(negedge clk_n or negedge rst_n) begin
@@ -127,11 +127,6 @@ module Adder_32 (
             BigExp_delayed_delayed_delayed <= BigExp_delayed_delayed;
         end
     end    
-    
-//     BadLeadingZero stage_31 (      // Leading Zero Counter
-//         .in(TempMan),
-//         .out(zerocount)
-//     );
 
     cntlz24 stage_31 (      // Leading Zero Counter
         .i(TempMan),
@@ -145,14 +140,14 @@ module Adder_32 (
             Mantissa <= 'b0;
         end else begin
             if (carry) begin
-                Mantissa <= TempMan >> 1;
+                Mantissa <= TempMan[22:0] >> 1;
                 Exponent <= BigExp_delayed_delayed_delayed + 1; 
             end
             else if (|TempMan[22:0]) begin
-                Mantissa <= TempMan << zerocount;
-                Exponent <= BigExp_delayed_delayed_delayed - zerocount;
+                Mantissa <= TempMan[22:0] << zerocount;
+                Exponent <= BigExp_delayed_delayed_delayed - {3'b0, zerocount};
             end else begin
-                Mantissa <= TempMan;
+                Mantissa <= TempMan[22:0];
                 Exponent <= BigExp_delayed_delayed_delayed;
             end
             Sign <= sign_delayed_delayed_delayed;

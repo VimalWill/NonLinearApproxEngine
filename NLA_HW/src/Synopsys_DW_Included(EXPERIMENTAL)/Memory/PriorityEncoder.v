@@ -3,7 +3,7 @@
 module PriorityEncoder #(
     parameter WIDTH = 4
  ) (
-    input [(1 << WIDTH)-1: 0] in,
+    input wire [(1 << WIDTH)-1: 0] in,
     output reg [WIDTH-1: 0] out
  );
     

@@ -3,16 +3,18 @@
 module PriorityEncoder #(
     parameter WIDTH = 4
  ) (
-    input [(1 << WIDTH)-1: 0] in,
+    input wire [(1 << WIDTH)-1: 0] in,
     output reg [WIDTH-1: 0] out
  );
     
     integer i;
     always @(*) begin
-        out = 'bx; // don't care if no 'in' bits set
+        out = {WIDTH{1'bx}}; // don't care if no 'in' bits set
         for (i = (1 << WIDTH)-1 ; i >= 0; i = i-1) begin
             if (in[i])
+              // verilator lint_off WIDTHTRUNC
                out = i;
+               // verilator lint_on WIDTHTRUNC
         end
     end
 endmodule

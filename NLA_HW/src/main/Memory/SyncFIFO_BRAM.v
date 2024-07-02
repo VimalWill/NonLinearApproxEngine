@@ -4,17 +4,17 @@ module SyncFIFO_BRAM #(
     parameter RAM_WIDTH = 32,
     parameter ADDR_LINES = 12
 ) (
-    input clk_i,
-    input rstn_i,
-    input wr_en,   // Write Enable
-    input rd_en,   // Right Enable
-    input [RAM_WIDTH-1:0] data_i,
+    input wire clk_i,
+    input wire rstn_i,
+    input wire wr_en,   // Write Enable
+    input wire rd_en,   // Right Enable
+    input wire [RAM_WIDTH-1:0] data_i,
     
-    output full_o,
-    output empty_o,
+    output wire full_o,
+    output wire empty_o,
     
-    output start_o,
-    output [RAM_WIDTH-1:0] data_o
+    output wire start_o,
+    output wire [RAM_WIDTH-1:0] data_o
 );
 
     reg [(1 << ADDR_LINES) - 1:0] status;
@@ -52,7 +52,7 @@ module SyncFIFO_BRAM #(
      
     // PORT A --> Write
     // PORT B --> Read
-    xilinx_true_dual_port_no_change_1_clock_ram #(
+    dual_port_ram #(
         .RAM_WIDTH(RAM_WIDTH),              // Specify RAM data width
         .ADDR_LINES(ADDR_LINES)             // Specify RAM (number of) address bits
     ) FIFO (

@@ -3,11 +3,11 @@
 module Coeff_cntr #(
   parameter ADDR_LINES = 4
 ) (
-    input clkn_i,
-    input rd_en,
-    input redo,
-    input [(1 << ADDR_LINES) - 1:0] count,
-    output [ADDR_LINES - 1:0] rd_ptr
+    input wire clkn_i,
+    input wire rd_en,
+    input wire redo,
+    input wire [(1 << ADDR_LINES) - 1:0] count,
+    output wire  [ADDR_LINES - 1:0] rd_ptr
 );
     integer i;
     

@@ -2,11 +2,11 @@
 
 module datapath #(parameter WIDTH = 32)
     (
-        input clk_n,
-        input rst_n,
-        input [WIDTH - 1:0] signal,
-        input [WIDTH - 1:0] coeff,
-        input LD_result,
+        input wire clk_n,
+        input wire rst_n,
+        input wire [WIDTH - 1:0] signal,
+        input wire [WIDTH - 1:0] coeff,
+        input wire LD_result,
         output reg [WIDTH - 1:0] result
     );
 
