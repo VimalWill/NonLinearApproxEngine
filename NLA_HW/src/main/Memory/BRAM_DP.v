@@ -27,18 +27,15 @@ module dual_port_ram #(
   reg [RAM_WIDTH-1:0] ram_data_b;
 
   always @(posedge clk_i) begin
-    if (ena) begin
-      if (wea)
-        BRAM[addra] <= dina;
-      else
-        ram_data_a <= BRAM[addra];
 
-      if (enb) begin
-        if (web)
-          BRAM[addrb] <= dinb;
-        else
-          ram_data_b <= BRAM[addrb];
-      end
+    if (ena) begin
+      if (wea) BRAM[addra] <= dina;
+      else ram_data_a <= BRAM[addra];
+    end
+
+    else if (enb) begin
+      if (web) BRAM[addrb] <= dinb;
+      else ram_data_b <= BRAM[addrb];
     end
   end
 

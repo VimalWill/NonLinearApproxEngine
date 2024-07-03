@@ -2,7 +2,7 @@
 
 module CoeffFIFO #(
     parameter RAM_WIDTH = 32,
-    parameter ADDR_LINES = 12
+    parameter ADDR_LINES = 5
 ) (
     input wire clk_i,
     input wire rstn_i,
