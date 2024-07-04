@@ -7,9 +7,9 @@ module Coeff_cntr #(
     input wire rd_en,
     input wire redo,
     input wire [(1 << ADDR_LINES) - 1:0] count,
-    output wire  [ADDR_LINES - 1:0] rd_ptr
+    output wire [ADDR_LINES - 1:0] rd_ptr
 );
-    integer i;
+    reg [ADDR_LINES-1:0] i;
     
     always @(posedge clkn_i) begin
         if (redo)

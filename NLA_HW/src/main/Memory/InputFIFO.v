@@ -19,12 +19,16 @@ module SyncFIFO_BRAM #(
 
     reg [(1 << ADDR_LINES) - 1:0] status;
     wire [ADDR_LINES - 1:0] wr_ptr, rd_ptr;
+     
+     PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
+         .in(~status),
+         .out(wr_ptr)
+     );
 
-    DW01_prienc #((1 << ADDR_LINES), ADDR_LINES)      // Status reg's zeroes-detector by DesignWare
-    U1 ( .A(~status), .INDEX(wr_ptr) );
-
-    DW01_prienc #((1 << ADDR_LINES), ADDR_LINES)      // Status reg's zeroes-detector by DesignWare
-    U2 ( .A(status), .INDEX(rd_ptr) );
+     PriorityEncoder #(ADDR_LINES) cntr_read (       // Status reg's ones-detector
+         .in(status),
+         .out(rd_ptr)
+     );
 
     always @ (posedge clk_i or negedge rstn_i) begin
         if (~rstn_i)

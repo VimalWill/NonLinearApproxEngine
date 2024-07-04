@@ -2,7 +2,7 @@
 
 module CoeffFIFO #(
     parameter RAM_WIDTH = 32,
-    parameter ADDR_LINES = 12
+    parameter ADDR_LINES = 5
 ) (
     input wire clk_i,
     input wire rstn_i,
@@ -25,8 +25,11 @@ module CoeffFIFO #(
     reg [(1 << ADDR_LINES) - 1:0] status;
     wire [ADDR_LINES - 1:0] wr_ptr, rd_ptr;
 
-    DW01_prienc #((1 << ADDR_LINES), ADDR_LINES)      // Status reg's zeroes-detector by DesignWare
-    U1 ( .A(~status), .INDEX(wr_ptr) );
+
+     PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
+         .in(~status),
+         .out(wr_ptr)
+     );
 
     Coeff_cntr #(ADDR_LINES) cntr_read (            // Read pointer using status reg and counter
         .clkn_i(clk_i),
@@ -40,7 +43,7 @@ module CoeffFIFO #(
     
     always @ (posedge clk_i or negedge rstn_i) begin
 
-        if (~rstn_i) status <= 16'b0;
+        if (~rstn_i) status <= {(1 << ADDR_LINES){1'b0}};
         else if (wr_en) begin
             if(~status[wr_ptr])
                 status[wr_ptr] <= ~status[wr_ptr];
