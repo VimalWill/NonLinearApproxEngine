@@ -1,6 +1,6 @@
 `timescale 1ns / 100ps
 
-module SyncFIFO_BRAM #(
+module InputFIFO #(
     parameter RAM_WIDTH = 32,
     parameter ADDR_LINES = 12
 ) (

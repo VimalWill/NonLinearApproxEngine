@@ -18,7 +18,7 @@ module mac #(
 
     wire start_signal, start_coeff, wr_en_signal, wr_en_coeff, rd_en_signal, rd_en_coeff, redo_coeff, redo_data, LD_result;
 
-    SyncFIFO_BRAM #(
+    InputFIFO #(
           .RAM_WIDTH(DATA_WIDTH),
           .ADDR_LINES(ADDR_LINES)
       ) fifo_signal (
