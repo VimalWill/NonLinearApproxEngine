@@ -45,7 +45,7 @@ module Adder_32 (
     end
     
     assign comp = (A_Exp > B_Exp) ? 1'b1 : 1'b0;
-    assign magcheck = (A_Exp == B_Exp) ? 1'b0 : ((A_Man > B_Man) ? 1'b1 : 1'b0);
+    assign magcheck = (A_Exp ^ B_Exp) ? 1'b0 : ((A_Man > B_Man) ? 1'b1 : 1'b0);
     assign zero = (~|{A_Exp, A_Man} && ~|{B_Exp, B_Man});
     
     always @(negedge clk_n or negedge rst_n) begin
@@ -140,7 +140,7 @@ module Adder_32 (
             Mantissa <= 'b0;
         end else begin
             if (carry) begin
-                Mantissa <= TempMan[22:0] >> 1;
+                Mantissa <= TempMan[23:1];
                 Exponent <= BigExp_delayed_delayed_delayed + 1; 
             end
             else if (|TempMan[22:0]) begin

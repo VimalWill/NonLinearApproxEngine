@@ -22,7 +22,7 @@ module controller #(
     
     reg [2:0] state, next_state;
     reg [ADDR_LINES - 1:0] count;
-    reg [3:0] count2;
+    reg [4:0] count2;
     
     localparam S0 = 3'b000;
     localparam S1 = 3'b001;
@@ -96,7 +96,7 @@ module controller #(
             end
             
             S4: begin
-                if (count2 == 'd9) next_state = S2;
+                if (count2 == 'd12) next_state = S2;
                 else next_state = S4;
             end
             default : next_state = S0;

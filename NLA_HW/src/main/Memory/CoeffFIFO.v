@@ -66,22 +66,16 @@ module CoeffFIFO #(
         .addra(wr_ptr),             // Port A address bus, width determined from RAM_DEPTH
         .addrb(rd_ptr),             // Port B address bus, width determined from RAM_DEPTH
         .dina(data_i),              // Port A RAM input data, width determined from RAM_WIDTH
-        .dinb(),                    // Port B RAM input data, width determined from RAM_WIDTH
 
         .clk_i(clk_i),              // Clock
 
         .wea(wr_en && ~start_o),    // Port A write enable
-        .web(1'b0),                 // Port B write enable
         .ena(~full_o),                 // Port A RAM Enable, for additional power savings, disable port when not in use
         .enb(1'b1),                 // Port B RAM Enable, for additional power savings, disable port when not in use
-        
-        .rstna(rstn_i),             // Port A output reset (does not affect memory contents)
+
         .rstnb(rstn_i ^ redo_i),    // Port B output reset (does not affect memory contents)
-        .regcea(1'b0),              // Port A output register enable
         .regceb(rd_en),             // Port B output register enable
-        
-        .douta(),                   // Port A RAM output data, width determined from RAM_WIDTH
+
         .doutb(data_o)              // Port B RAM output data, width determined from RAM_WIDTH
     );
-
 endmodule
