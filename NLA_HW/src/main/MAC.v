@@ -58,8 +58,8 @@ module mac #(
       );
 
     datapath #(DATA_WIDTH) pipe (
-        .clk_n(clk_i),
-        .rst_n(redo_data),
+        .clkn_i(clk_i),
+        .rstn_i(redo_data),
         .signal(signal_pipe),
         .coeff(coeff_pipe),
         .LD_result(LD_result),
@@ -67,8 +67,8 @@ module mac #(
     );
 
     controller #(ADDR_LINES) ctrl (
-        .clk(clk_i),
-        .rst_n(rstn_i),
+        .clk_i(clk_i),
+        .rstn_i(rstn_i),
 
         .wr_ptr_coeff(wr_out),
 

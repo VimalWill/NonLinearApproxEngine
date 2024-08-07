@@ -3,8 +3,8 @@
 module controller #(
     parameter ADDR_LINES = 4
 ) (
-    input wire clk,
-    input wire rst_n,
+    input wire clk_i,
+    input wire rstn_i,
     
     input wire [ADDR_LINES - 1:0] wr_ptr_coeff,
     input wire start_signal,
@@ -30,8 +30,8 @@ module controller #(
     localparam S3 = 3'b011;
     localparam S4 = 3'b100;
     
-    always @(posedge clk or negedge rst_n) begin
-        if (~rst_n) begin
+    always @(posedge clk_i or negedge rstn_i) begin
+        if (~rstn_i) begin
 
             count <= 'b0;
             count2 <= 'b0;

@@ -1,8 +1,8 @@
 `timescale 1ns / 100ps
 
 module Adder_32 (
-     input wire clk_n,
-     input wire rst_n,
+     input wire clkn_i,
+     input wire rstn_i,
      input wire [31:0] A,
      input wire [31:0] B,
      output wire [31:0] Result
@@ -26,8 +26,8 @@ module Adder_32 (
     reg [7:0] A_Exp, B_Exp;
     reg [22:0] A_Man, B_Man;
 
-    always @(negedge clk_n or negedge rst_n) begin
-        if (~rst_n) begin
+    always @(negedge clkn_i or negedge rstn_i) begin
+        if (~rstn_i) begin
             A_sign <= 1'b0;
             B_sign <= 1'b0;
             A_Exp <= 8'b0;
@@ -48,8 +48,8 @@ module Adder_32 (
     assign magcheck = (A_Exp ^ B_Exp) ? 1'b0 : ((A_Man > B_Man) ? 1'b1 : 1'b0);
     assign zero = (~|{A_Exp, A_Man} && ~|{B_Exp, B_Man});
     
-    always @(negedge clk_n or negedge rst_n) begin
-        if (~rst_n) begin
+    always @(negedge clkn_i or negedge rstn_i) begin
+        if (~rstn_i) begin
             check <= 1'b0;
             sign <= 1'b0;
             BigExp <= 8'b0;
@@ -78,8 +78,8 @@ module Adder_32 (
         end
     end
      
-    always @(negedge clk_n or negedge rst_n) begin
-        if (~rst_n) begin
+    always @(negedge clkn_i or negedge rstn_i) begin
+        if (~rstn_i) begin
             DifferenceExp <= 8'b0;
             sign_delayed <= 1'b0;
             SmallMan_delayed <= 24'b0;
@@ -97,8 +97,8 @@ module Adder_32 (
         end
     end
     
-    always @(negedge clk_n or negedge rst_n) begin
-        if (~rst_n) begin
+    always @(negedge clkn_i or negedge rstn_i) begin
+        if (~rstn_i) begin
             Temp_SmallMan <= 24'b0;
             sign_delayed_delayed <= 1'b0;
             BigExp_delayed_delayed <= 8'b0;
@@ -114,8 +114,8 @@ module Adder_32 (
         end
     end
     
-    always @(negedge clk_n or negedge rst_n) begin 
-        if (~rst_n) begin
+    always @(negedge clkn_i or negedge rstn_i) begin
+        if (~rstn_i) begin
             carry <= 1'b0;
             TempMan <= 24'b0;
             sign_delayed_delayed_delayed <= 1'b0;
@@ -133,8 +133,8 @@ module Adder_32 (
         .o(zerocount)
     );
     
-    always @(negedge clk_n or negedge rst_n) begin
-        if (~rst_n) begin
+    always @(negedge clkn_i or negedge rstn_i) begin
+        if (~rstn_i) begin
             Sign <= 'b0;
             Exponent <= 'b0;
             Mantissa <= 'b0;

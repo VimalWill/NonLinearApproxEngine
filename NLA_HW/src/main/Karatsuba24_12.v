@@ -1,8 +1,8 @@
 `timescale 1ns / 1ps
 
 module karatsuba24_12 (
-    input clk,
-    input rst,
+    input clkn_i,
+    input rstn_i,
     input [23:0] A,
     input [23:0] B,
     output [47:0] product
@@ -19,24 +19,24 @@ module karatsuba24_12 (
     
     // Instantiate Booth multipliers
     r4booth_even #(12) booth_mult1 (
-        .clk(clk),
-        .rst(rst),
+        .clkn_i(clkn_i),
+        .rstn_i(rstn_i),
         .multiplicand(A_low),
         .multiplier(B_low),
         .product(P_low)
     );
 
     r4booth_even #(12) booth_mult2 (
-        .clk(clk),
-        .rst(rst),
+        .clkn_i(clkn_i),
+        .rstn_i(rstn_i),
         .multiplicand(A_high),
         .multiplier(B_high),
         .product(P_high)
     );
 
     r4booth_odd #(13) booth_mult3 (
-        .clk(clk),
-        .rst(rst),
+        .clkn_i(clkn_i),
+        .rstn_i(rstn_i),
         .multiplicand(temp1),
         .multiplier(temp2),
         .product(P_middle)

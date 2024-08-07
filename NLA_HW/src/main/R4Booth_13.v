@@ -3,9 +3,9 @@
 module r4booth_odd #(
   parameter N = 13
 )(
-  input clk, input rst,
-  input [N-1:0] multiplicand,
-  input [N-1:0] multiplier,
+  input wire clkn_i, input wire rstn_i,
+  input wire [N-1:0] multiplicand,
+  input wire [N-1:0] multiplier,
   output reg [(2*N)-1:0] product
 );
 
@@ -27,8 +27,8 @@ module r4booth_odd #(
   
   integer i;
   
-  always @(negedge clk or negedge rst) begin
-    if (~rst) begin
+  always @(negedge clkn_i or negedge rstn_i) begin
+    if (~rstn_i) begin
       multiplicand_hold <= 'b0;
       multiplier_hold <= 'b0;
     end else begin
@@ -69,8 +69,8 @@ module r4booth_odd #(
     end
   end
   
-  always @(negedge clk or negedge rst) begin
-    if (~rst)
+  always @(negedge clkn_i or negedge rstn_i) begin
+    if (~rstn_i)
       for (i = 0; i < N/2 + 1; i = i + 1)
         partial_product_hold[i] <= 'b0;
 
@@ -83,8 +83,8 @@ module r4booth_odd #(
       for (i = 0; i < N/4; i = i + 1) 
         val[i] = partial_product_hold[2*i] + (partial_product_hold[2*i+1] << 2);
 
-  always @(negedge clk or negedge rst) begin
-    if (~rst)
+  always @(negedge clkn_i or negedge rstn_i) begin
+    if (~rstn_i)
       for (i = 0; i < N/4; i = i + 1)
         val_next[i] <= 'b0;
         
@@ -93,8 +93,8 @@ module r4booth_odd #(
         val_next[i] <= val[i];
   end
   
-  always @(negedge clk or negedge rst) begin
-    if (~rst) partial_product_last <= 'b0;
+  always @(negedge clkn_i or negedge rstn_i) begin
+    if (~rstn_i) partial_product_last <= 'b0;
     else partial_product_last <= partial_product_hold[N/2] << N-1;
   end
 
@@ -104,8 +104,8 @@ module r4booth_odd #(
       accum = accum + (val_next[i] << (4 * i));
   end
 
-  always @(negedge clk or negedge rst) begin
-    if (~rst) product <= 'b0;
+  always @(negedge clkn_i or negedge rstn_i) begin
+    if (~rstn_i) product <= 'b0;
     else product <= accum;
   end
   
