@@ -50,11 +50,11 @@ module multiply_32 (
         end 
     end
     
-    karatsuba24_12 karatsuba (
+    karatsuba24_6 karatsuba (
         .clkn_i(clkn_i),
         .rstn_i(rstn_i),
-        .A(A_Mantissa),
-        .B(B_Mantissa),
+        .multiplicand(A_Mantissa),
+        .multiplier(B_Mantissa),
         .product(Temp_Mantissa)
     );
     
