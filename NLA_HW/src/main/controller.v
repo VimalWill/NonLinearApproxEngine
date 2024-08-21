@@ -71,7 +71,7 @@ module controller #(
                     next_state = S1;
                 end else begin
                     if(!start_signal) wr_en_signal = 1'b1;
-                    else if(!start_coeff) wr_en_coeff = 1'b1;
+                    if(!start_coeff) wr_en_coeff = 1'b1;
                         
                     next_state = S0;
                 end 
