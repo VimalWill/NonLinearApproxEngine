@@ -6,12 +6,11 @@ module controller #(
     input wire clk_i,
     input wire rstn_i,
     
-    input wire [ADDR_LINES - 1:0] wr_ptr_coeff,
+    input wire [ADDR_LINES-1:0] coeff_count,
     input wire start_signal,
     input wire start_coeff,
                    
     output reg wr_en_signal,
-    output reg wr_en_coeff,
     output reg rd_en_signal,
     output reg rd_en_coeff,
     
@@ -39,7 +38,7 @@ module controller #(
             state <= S0;
         end else begin
             if (state == S3) count <= count - 1;
-            if (state == S0) count <= wr_ptr_coeff;
+            if (state == S0) count <= coeff_count;
             else if (state == S2) count2 <= 'b0;
             else if (state == S4) count2 <= count2 + 1;
 
@@ -50,7 +49,7 @@ module controller #(
     always @(*) begin
         
         wr_en_signal = 1'b0;
-        wr_en_coeff = 1'b0;
+
         rd_en_signal = 1'b0;
         rd_en_coeff = 1'b0;
         
@@ -70,8 +69,7 @@ module controller #(
                     
                     next_state = S1;
                 end else begin
-                    if(!start_signal) wr_en_signal = 1'b1;
-                    if(!start_coeff) wr_en_coeff = 1'b1;
+//                    if(!start_signal) wr_en_signal = 1'b1;
                         
                     next_state = S0;
                 end 

@@ -50,7 +50,7 @@ module multiply_32 (
         end 
     end
     
-    karatsuba24_6 karatsuba (
+    karatsuba24_12 karatsuba (
         .clkn_i(clkn_i),
         .rstn_i(rstn_i),
         .multiplicand(A_Mantissa),

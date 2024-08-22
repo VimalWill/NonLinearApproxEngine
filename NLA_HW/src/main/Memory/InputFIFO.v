@@ -10,14 +10,12 @@ module InputFIFO #(
     input wire rd_en,   // Right Enable
     input wire [RAM_WIDTH-1:0] data_i,
     
-    output wire full_o,
-    output wire empty_o,
+    output wire full_o, empty_o, idle_o,
     
-    output wire start_o,
     output wire [RAM_WIDTH-1:0] data_o
 );
 
-    reg [(1 << ADDR_LINES) - 1:0] status;
+    reg [(1 << ADDR_LINES)-1:0] status;
     wire [ADDR_LINES - 1:0] wr_ptr, rd_ptr;
      
      PriorityEncoder #(ADDR_LINES) cntr_write (      // Status reg's zeroes-detector
@@ -45,11 +43,12 @@ module InputFIFO #(
         end
     end
     
-    assign full_o = status[(1 << ADDR_LINES) - 1] && 1'b1;
-    assign empty_o = ~(status[0] || 'b0); // NOR gate
+    // FIFO status Flags
+    assign full_o = status[(1 << ADDR_LINES)-1];
+    assign empty_o = ~status[0];
     
-    assign start_o = data_i == 32'b01111111100100000000000000000000; // NaN
-     
+    assign idle_o = ~(wr_en | rd_en);
+         
     // PORT A --> Write
     // PORT B --> Read
     dual_port_ram #(
@@ -62,9 +61,9 @@ module InputFIFO #(
 
         .clk_i(clk_i),              // Clock
 
-        .wea(wr_en && ~start_o),    // Port A write enable
-        .ena(~full_o),                 // Port A RAM Enable, for additional power savings, disable port when not in use
-        .enb(1'b1),                 // Port B RAM Enable, for additional power savings, disable port when not in use
+        .wea(wr_en),                // Port A write enable
+        .ena(~full_o),              // Port A RAM Enable, for additional power savings, disable port when not in use
+        .enb(status[rd_ptr]),       // Port B RAM Enable, for additional power savings, disable port when not in use
 
         .rstnb(rstn_i),             // Port B output reset (does not affect memory contents)
         .regceb(rd_en),             // Port B output register enable

@@ -12,12 +12,7 @@ module CoeffFIFO #(
     
     input wire redo_i,
     
-    output wire full_o,
-    output wire empty_o,
-    
-    output wire start_o,
-    
-    output wire [ADDR_LINES - 1:0] wr_out,
+    output wire full_o, empty_o, idle_o,
     
     output wire [RAM_WIDTH-1:0] data_o
 );
@@ -39,8 +34,6 @@ module CoeffFIFO #(
         .rd_ptr(rd_ptr)
     );
     
-    assign wr_out = wr_ptr;
-    
     always @ (posedge clk_i or negedge rstn_i) begin
 
         if (~rstn_i) status <= {(1 << ADDR_LINES){1'b0}};
@@ -51,12 +44,11 @@ module CoeffFIFO #(
     end
     
     // FIFO status Flags
-    assign full_o = status[(1 << ADDR_LINES) - 1] && 1'b1;
-    assign empty_o = ~(status[0] || 1'b0); //NOR gate
+    assign full_o = status[(1 << ADDR_LINES)-1];
+    assign empty_o = ~status[0];
     
-    // FSM Control Flags
-    assign start_o = data_i == 32'b01111111100100000000000000000000; // NaN
-     
+    assign idle_o = ~(wr_en | rd_en); 
+         
     // PORT A --> Write
     // PORT B --> Read
     dual_port_ram #(
@@ -69,9 +61,9 @@ module CoeffFIFO #(
 
         .clk_i(clk_i),              // Clock
 
-        .wea(wr_en && ~start_o),    // Port A write enable
-        .ena(~full_o),                 // Port A RAM Enable, for additional power savings, disable port when not in use
-        .enb(1'b1),                 // Port B RAM Enable, for additional power savings, disable port when not in use
+        .wea(wr_en),                // Port A write enable
+        .ena(~full_o),              // Port A RAM Enable, for additional power savings, disable port when not in use
+        .enb(status[0]),            // Port B RAM Enable, for additional power savings, disable port when not in use
 
         .rstnb(rstn_i ^ redo_i),    // Port B output reset (does not affect memory contents)
         .regceb(rd_en),             // Port B output register enable

@@ -2,21 +2,23 @@
 
 module mac #(
     parameter DATA_WIDTH = 32,
-    parameter ADDR_LINES = 4
+    parameter ADDR_LINES = 5
 ) (
     input wire clk_i,
     input wire rstn_i,
     input wire [DATA_WIDTH - 1:0] signal_fifo,
     input wire [DATA_WIDTH - 1:0] coeff_fifo,
-    output wire full_adder, full_mul,
-    output wire empty_adder, empty_mul,
+    input wire [ADDR_LINES-1:0] taylor_length,
+    input wire wr_en_coeff, last_coeff,
+    input wire wr_en_signal, last_signal,
+    output wire full_adder, empty_adder, idle_coeff,
+    output wire full_mul, empty_mul, idle_signal,
     output wire [DATA_WIDTH - 1:0] result
 );
 
     wire [DATA_WIDTH - 1:0] signal_pipe, coeff_pipe;
-    wire [ADDR_LINES - 1:0] wr_out;
 
-    wire start_signal, start_coeff, wr_en_signal, wr_en_coeff, rd_en_signal, rd_en_coeff, redo_coeff, redo_data, LD_result;
+    wire rd_en_signal, rd_en_coeff, redo_coeff, redo_data, LD_result;
 
     InputFIFO #(
           .RAM_WIDTH(DATA_WIDTH),
@@ -27,11 +29,11 @@ module mac #(
 
           .full_o(full_mul),
           .empty_o(empty_mul),
-
-          .start_o(start_signal),
+          .idle_o(idle_signal),
 
           .wr_en(wr_en_signal),
           .rd_en(rd_en_signal),
+          
           .data_i(signal_fifo),
           .data_o(signal_pipe)
       );
@@ -43,16 +45,15 @@ module mac #(
           .clk_i(clk_i),
           .rstn_i(rstn_i),
 
-          .wr_out(wr_out),
           .redo_i(redo_coeff),
 
           .full_o(full_adder),
           .empty_o(empty_adder),
-
-          .start_o(start_coeff),
+          .idle_o(idle_coeff),
 
           .wr_en(wr_en_coeff),
           .rd_en(rd_en_coeff),
+          
           .data_i(coeff_fifo),
           .data_o(coeff_pipe)
       );
@@ -70,13 +71,11 @@ module mac #(
         .clk_i(clk_i),
         .rstn_i(rstn_i),
 
-        .wr_ptr_coeff(wr_out),
+        .coeff_count(taylor_length+1'b1),
 
-        .start_signal(start_signal),
-        .start_coeff(start_coeff),
+        .start_signal(last_signal),
+        .start_coeff(last_coeff),
 
-        .wr_en_signal(wr_en_signal),
-        .wr_en_coeff(wr_en_coeff),
         .rd_en_signal(rd_en_signal),
         .rd_en_coeff(rd_en_coeff),
 

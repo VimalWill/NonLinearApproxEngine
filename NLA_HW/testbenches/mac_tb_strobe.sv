@@ -10,12 +10,14 @@ module mac_tb_strobe;
     reg [DATA_WIDTH - 1:0] coeff_fifo;
     reg [ADDR_LINES-1:0] taylor_length;
 
-    // Outputs
+    reg wr_en_coeff_tb, last_coeff, idle_coeff;
+    reg wr_en_signal_tb, last_signal, idle_signal;
+
     wire full_adder, full_mul;
     wire empty_adder, empty_mul;
     wire [DATA_WIDTH - 1:0] result;
 
-    reg [DATA_WIDTH-1:0] signal_sigmoid [0:30] = {
+    reg [DATA_WIDTH-1:0] signal_sigmoid [0:29] = {
         32'b11000000101000000000000000000000,
         32'b11000000100101001111011100101101,
         32'b11000000100010011110111001011001,
@@ -45,11 +47,10 @@ module mac_tb_strobe;
         32'b01000000011111011100101100001001,
         32'b01000000100010011110111001011001,
         32'b01000000100101001111011100101101,
-        32'b01000000101000000000000000000000,
-        32'b01111111100100000000000000000000  // NaN
+        32'b01000000101000000000000000000000
     };
 
-    reg [DATA_WIDTH - 1:0] signal_GeLu [0:29] = {
+    reg [DATA_WIDTH - 1:0] signal_GeLu [0:28] = {
         32'b11000001000010000010100011110101,
         32'b11000000111111011000101000010001,
         32'b11000000111010101100001000110101,
@@ -78,11 +79,10 @@ module mac_tb_strobe;
         32'b01000000110101111111101001011001,
         32'b01000000111010101100001000110101,
         32'b01000000111111011000101000010001,
-        32'b01000001000010000010100011110101,
-        32'b01111111100100000000000000000000  // NaN
+        32'b01000001000010000010100011110101
     };
 
-    reg [DATA_WIDTH - 1:0] coeff_sigmoid [0:25] = {
+    reg [DATA_WIDTH - 1:0] coeff_sigmoid [0:24] = {
         32'b00010101100111111001111001100111, // 25
         32'b00010111111110010110011110000001, // 24
         32'b00011010001110110000110110100001, // 23
@@ -107,11 +107,10 @@ module mac_tb_strobe;
         32'b00111101001010101010101010101011, // 4
         32'b00111110001010101010101010101011, // 3
         32'b00111111000000000000000000000000, // 2
-        32'b00111111100000000000000000000000, // 1
-        32'b01111111100100000000000000000000  // NaN
+        32'b00111111100000000000000000000000  // 1
     };
 
-    reg [DATA_WIDTH - 1:0] coeff_TanH [0:31] = {
+    reg [DATA_WIDTH - 1:0] coeff_TanH [0:30] = {
         32'b00011000100111001001100101100011, // 30
         32'b00011010100100101100111111001101, // 29
         32'b00011100100001010000110001010001, // 28
@@ -142,8 +141,7 @@ module mac_tb_strobe;
         32'b00111111101010101010101010101011, // 3
         32'b01000000000000000000000000000000, // 2
         32'b01000000000000000000000000000000, // 1
-        32'b00111111100000000000000000000000, // 0
-        32'b01111111100100000000000000000000  // NaN
+        32'b00111111100000000000000000000000  // 0
     };
 
     mac #(
@@ -155,10 +153,10 @@ module mac_tb_strobe;
         .signal_fifo(signal_fifo),
         .coeff_fifo(coeff_fifo),
         .taylor_length(taylor_length),
-        .full_adder(full_adder),
-        .empty_adder(empty_adder),
-        .full_mul(full_mul),
-        .empty_mul(empty_mul),
+        .wr_en_coeff(wr_en_coeff_tb), .last_coeff(last_coeff), .idle_coeff(idle_coeff),
+        .wr_en_signal(wr_en_signal_tb), .last_signal(last_signal), .idle_signal(idle_signal),
+        .full_adder(full_adder), .empty_adder(empty_adder),
+        .full_mul(full_mul), .empty_mul(empty_mul),
         .result(result)
     );
     
@@ -168,6 +166,10 @@ module mac_tb_strobe;
         clk_i = 0;
         rstn_i = 1;
         taylor_length = 5'd30;
+        wr_en_coeff_tb = 1'b0;
+        last_coeff = 1'b0;
+        wr_en_signal_tb = 1'b0;
+        last_signal = 1'b0;
 
         rstn_i = 0;
         #10;
@@ -175,31 +177,30 @@ module mac_tb_strobe;
     end
     
     initial begin
-        #10;
-        for (int i = 0; i < 31; i = i + 1) begin
+        #10 wr_en_signal_tb = 1'b1;;
+        for (int i = 0; i < 30; i = i + 1) begin
             signal_fifo = signal_sigmoid[i];
             #10;
         end
-        
-//        signal_fifo = signal_sigmoid[0];
-//        #10;
-//        signal_fifo = signal_sigmoid[30];
-//        #10;
+        wr_en_signal_tb = 1'b0;
+        last_signal = 1'b1;
     end
     
     initial begin
-        #10;
-        for (int i = 0; i < 32; i = i + 1) begin
+        #10 if(idle_coeff) wr_en_coeff_tb = 1'b1;;
+        for (int i = 0; i < 31; i = i + 1) begin
             coeff_fifo = coeff_TanH[i];
             #10;
         end
+        wr_en_coeff_tb = 1'b0;
+        last_coeff = 1'b1;
     end
     
     initial begin 
         $monitor("Time=%0t, result-hex=%h, result=%b", $time, result, result);
         #150000 $finish;
-//        #19000 $finish;
-//        #5000 $finish;
+//        #10100 $finish;
+//        #5050 $finish;
 //        #350 $finish;
     end    
 endmodule
