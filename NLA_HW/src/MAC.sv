@@ -23,7 +23,8 @@ module mac #(
     output logic                        idle_o,    // Module is idle
 
     // Result output
-    output logic [DATA_WIDTH-1:0]       result_o   // Computed result
+    output logic [DATA_WIDTH-1:0]       result_o,  // Computed result
+    output logic done_o
 );
 
     // Internal signals
@@ -96,7 +97,8 @@ module mac #(
         .rd_coeff_o     (rd_en_coeff),
         .load_result_o  (load_result),
         .coeff_addr_o   (coeff_addr),
-        .dp_reset_o     (dp_reset_o)
+        .dp_reset_o     (dp_reset_o),
+        .done_o         (done_o)
     );
 
 endmodule
